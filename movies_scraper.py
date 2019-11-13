@@ -38,15 +38,14 @@ def fetch_movie_data(href):
     page2 = requests.get('https://www.imdb.com' + str(href))
     soup2 = BeautifulSoup(page2.text, 'html.parser')
     movie_details = soup2.find(id="titleDetails")
-    info = {'box_office': 'NA', 'budget': 'NA', 'in_english': 'NA', 'runtime': 'NA', 'is_genre_action': '0',
-            'is_genre_adventure': '0', 'is_genre_animation': '0', 'is_genre_biography': '0', 'is_genre_comedy': '0',
-            'is_genre_crime': '0', 'is_genre_documentary': '0', 'is_genre_drama': '0', 'is_genre_family': '0',
-            'is_genre_fantasy': '0', 'is_genre_film-noir': '0', 'is_genre_game-show': '0',  'is_genre_history': '0',
-            'is_genre_horror': '0', 'is_genre_music': '0', 'is_genre_musical': '0', 'is_genre_mystery': '0',
-            'is_genre_news': '0', 'is_genre_reality-tv': '0', 'is_genre_romance': '0', 'is_genre_sci-fi': '0',
-            'is_genre_sport': '0', 'is_genre_talk-show': '0', 'is_genre_thriller': '0', 'is_genre_war': '0',
-            'is_genre_western': '0'}
-    movie_storyline = soup2.find(id="titleStoryLine")
+    info = {'box_office': 'NA', 'budget': 'NA', 'in_english': 'NA', 'runtime': 'NA', 'critics_score': 'NA',
+            'is_genre_action': '0', 'is_genre_adventure': '0', 'is_genre_animation': '0', 'is_genre_biography': '0',
+            'is_genre_comedy': '0', 'is_genre_crime': '0', 'is_genre_documentary': '0', 'is_genre_drama': '0',
+            'is_genre_family': '0', 'is_genre_fantasy': '0', 'is_genre_film-noir': '0', 'is_genre_game-show': '0',
+            'is_genre_history': '0', 'is_genre_horror': '0', 'is_genre_music': '0', 'is_genre_musical': '0',
+            'is_genre_mystery': '0', 'is_genre_news': '0', 'is_genre_reality-tv': '0', 'is_genre_romance': '0',
+            'is_genre_sci-fi': '0', 'is_genre_sport': '0', 'is_genre_talk-show': '0', 'is_genre_thriller': '0',
+            'is_genre_war': '0', 'is_genre_western': '0'}
     try:
         textblocks = movie_details.find_all(class_="txt-block")
         for t in textblocks:
@@ -64,11 +63,15 @@ def fetch_movie_data(href):
                         info['in_english'] = 0
                 elif 'Runtime' in str(header[0]):
                     info['runtime'] = str(t.find('time').contents[0])
+
             except AttributeError:
                 pass
+
     except ValueError:
         pass
+
     try:
+        movie_storyline = soup2.find(id="titleStoryLine")
         textblocks = movie_storyline.find_all(class_="see-more inline canwrap")
         try:
             for genre in textblocks[1].find_all('a'):
@@ -76,11 +79,19 @@ def fetch_movie_data(href):
                     info['is_genre_{}'.format(genre.contents[0].lower()[1:])] = 1
                 else:
                     print('Error in movie ' + href + ' unknown genre')
+
         except IndexError:
             print('Error in movie ' + href + ' no genres')
 
     except ValueError or IndexError:
         print('value/index error')
+
+    try:
+        movie_review = soup2.find(class_="metacriticScore score_mixed titleReviewBarSubItem").find('span')
+        info['critics_score'] = movie_review.contents[0]
+
+    except AttributeError:
         pass
 
+    time.sleep(1)
     return info
