@@ -40,14 +40,14 @@ def fetch_movie_data(href):
     page2 = requests.get('https://www.imdb.com' + str(href))
     soup2 = BeautifulSoup(page2.text, 'html.parser')
     movie_details = soup2.find(id="titleDetails")
-    info = {'box_office': 'NA', 'budget': 'NA', 'in_english': 'NA', 'runtime': 'NA', 'critics_score': 'NA',
-            'is_genre_action': '0', 'is_genre_adventure': '0', 'is_genre_animation': '0', 'is_genre_biography': '0',
-            'is_genre_comedy': '0', 'is_genre_crime': '0', 'is_genre_documentary': '0', 'is_genre_drama': '0',
-            'is_genre_family': '0', 'is_genre_fantasy': '0', 'is_genre_film-noir': '0', 'is_genre_game-show': '0',
-            'is_genre_history': '0', 'is_genre_horror': '0', 'is_genre_music': '0', 'is_genre_musical': '0',
-            'is_genre_mystery': '0', 'is_genre_news': '0', 'is_genre_reality-tv': '0', 'is_genre_romance': '0',
-            'is_genre_sci-fi': '0', 'is_genre_sport': '0', 'is_genre_talk-show': '0', 'is_genre_thriller': '0',
-            'is_genre_war': '0', 'is_genre_western': '0'}
+    info = {'link': href, 'box_office': 'NA', 'budget': 'NA', 'in_english': 'NA', 'runtime': 'NA',
+            'critics_score': 'NA', 'is_genre_action': '0', 'is_genre_adventure': '0', 'is_genre_animation': '0',
+            'is_genre_biography': '0', 'is_genre_comedy': '0', 'is_genre_crime': '0', 'is_genre_documentary': '0',
+            'is_genre_drama': '0', 'is_genre_family': '0', 'is_genre_fantasy': '0', 'is_genre_film-noir': '0',
+            'is_genre_game-show': '0', 'is_genre_history': '0', 'is_genre_horror': '0', 'is_genre_music': '0',
+            'is_genre_musical': '0', 'is_genre_mystery': '0', 'is_genre_news': '0', 'is_genre_reality-tv': '0',
+            'is_genre_romance': '0', 'is_genre_sci-fi': '0', 'is_genre_sport': '0', 'is_genre_talk-show': '0',
+            'is_genre_thriller': '0', 'is_genre_war': '0', 'is_genre_western': '0'}
     try:
         textblocks = movie_details.find_all(class_="txt-block")
         for t in textblocks:
@@ -99,9 +99,18 @@ def fetch_movie_data(href):
     movie_data.append(info)
     return
 
-fetch_movie_data(movies_links[400])
+
+print('List of movies ready. Starting to scrap data...')
+informational_number = 1
+for link in movies_links[1], movies_links[2]:
+    fetch_movie_data(link)
+    print('Scraped ', informational_number, ' of ', len(movies_links), ' movies - ',
+          ('%.3f' % (informational_number/len(movies_links)*100)), '% ')
+    informational_number += 1
+print('Preparing CSV file...')
+
 with open('movies_data.csv', mode='w') as csv_file:
-    fieldnames = ['box_office', 'budget', 'in_english', 'runtime', 'critics_score', 'is_genre_action',
+    fieldnames = ['link', 'box_office', 'budget', 'in_english', 'runtime', 'critics_score', 'is_genre_action',
                   'is_genre_adventure', 'is_genre_animation', 'is_genre_biography', 'is_genre_comedy', 'is_genre_crime',
                   'is_genre_documentary', 'is_genre_drama', 'is_genre_family', 'is_genre_fantasy', 'is_genre_film-noir',
                   'is_genre_game-show', 'is_genre_history', 'is_genre_horror', 'is_genre_music', 'is_genre_musical',
