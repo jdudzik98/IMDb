@@ -54,9 +54,9 @@ def fetch_movie_data(href):
             try:
                 header = t.find(class_="inline").contents
                 if 'Cumulative Worldwide Gross' in str(header[0]):
-                    info['box_office'] = str(t.contents[2])
+                    info['box_office'] = str(t.contents[2]).replace(' ', '').replace('\n', '')
                 elif 'Budget' in str(header[0]):
-                    info['budget'] = str(t.contents[2])
+                    info['budget'] = str(t.contents[2]).replace(' ', '').replace('\n', '')
                 elif 'Language' in str(header[0]):
                     for lang in t.find_all('a'):
                         if 'English' in str(lang.contents[0]):
@@ -99,7 +99,7 @@ def fetch_movie_data(href):
     movie_data.append(info)
     return
 
-
+fetch_movie_data(movies_links[400])
 with open('movies_data.csv', mode='w') as csv_file:
     fieldnames = ['box_office', 'budget', 'in_english', 'runtime', 'critics_score', 'is_genre_action',
                   'is_genre_adventure', 'is_genre_animation', 'is_genre_biography', 'is_genre_comedy', 'is_genre_crime',
