@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import csv
 
 movies_links = []
+movie_data = []
 for single_page in range(int(11897/250)):
     broken = False
     page = requests.get(
@@ -94,4 +96,18 @@ def fetch_movie_data(href):
         pass
 
     time.sleep(1)
-    return info
+    movie_data.append(info)
+    return
+
+
+with open('movies_data.csv', mode='w') as csv_file:
+    fieldnames = ['box_office', 'budget', 'in_english', 'runtime', 'critics_score', 'is_genre_action',
+                  'is_genre_adventure', 'is_genre_animation', 'is_genre_biography', 'is_genre_comedy', 'is_genre_crime',
+                  'is_genre_documentary', 'is_genre_drama', 'is_genre_family', 'is_genre_fantasy', 'is_genre_film-noir',
+                  'is_genre_game-show', 'is_genre_history', 'is_genre_horror', 'is_genre_music', 'is_genre_musical',
+                  'is_genre_mystery', 'is_genre_news', 'is_genre_reality-tv', 'is_genre_romance', 'is_genre_sci-fi',
+                  'is_genre_sport', 'is_genre_talk-show', 'is_genre_thriller', 'is_genre_war', 'is_genre_western']
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in movie_data:
+        writer.writerow(row)
