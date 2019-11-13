@@ -32,3 +32,20 @@ for single_page in range(int(11897/250)):
     if broken:
         break
     time.sleep(1)
+
+
+def fetch_box_office(href):
+    page2 = requests.get('https://www.imdb.com' + str(href))
+    soup2 = BeautifulSoup(page2.text, 'html.parser')
+    movie_details = soup2.find(id="titleDetails")
+    try:
+        txt = movie_details.find_all(class_="txt-block")
+        for t in txt:
+            try:
+                header = t.find(class_="inline").contents
+                if 'Cumulative Worldwide Gross' in str(header[0]):
+                    return str(t.contents[2])
+            except AttributeError:
+                return "NA"
+    except ValueError:
+        pass
