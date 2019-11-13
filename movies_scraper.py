@@ -1,15 +1,34 @@
 from bs4 import BeautifulSoup
 import requests
+import time
 
 movies_links = []
-page = requests.get('https://www.imdb.com/search/title/?title_type==feature&release_date=2018-01-01,2018-12-31&sort=' +
-                    'boxoffice_gross_us,asc&count=250&start=' + str(0+1) + '&ref_=adv_nxt')
+for single_page in range(int(11897/250)):
+    broken = False
+    page = requests.get(
+        'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31&sort=' +
+        'boxoffice_gross_us,asc&count=250&start=' + str(single_page*250 + 1) + '&ref_=adv_nxt')
 
-soup = BeautifulSoup(page.text, 'html.parser')
-movies = soup.find_all(class_='lister-item mode-advanced')
+    soup = BeautifulSoup(page.text, 'html.parser')
+    movies = soup.find_all(class_='lister-item mode-advanced')
 
-for movie in movies:
-    single_movie = movie.find(class_='lister-item-image float-left').find('a')['href']
-    movies_links.append(single_movie)
+    for movie in movies:
+        movie_href = movie.find(class_='lister-item-image float-left').find('a')['href']
+        single_movie = movie.find(class_="sort-num_votes-visible").find_all('span', {"name": "nv"})
 
-print(movies_links)
+        # conditional statement to exclude movies without known box office
+        if str(single_movie[0].contents[0][0]) == '$':
+            movies_links.append(movie_href)
+        else:
+            try:
+                if str(single_movie[1].contents[0][0]) == '$':
+                    movies_links.append(movie_href)
+                else:
+                    broken = True
+                    print("Unknown Error")
+            except IndexError:
+                broken = True
+                break
+    if broken:
+        break
+    time.sleep(1)
