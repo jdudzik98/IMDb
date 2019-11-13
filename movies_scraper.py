@@ -102,7 +102,7 @@ def fetch_movie_data(href):
 
 print('List of movies ready. Starting to scrap data...')
 informational_number = 1
-for link in movies_links[1], movies_links[2]:
+for link in movies_links:
     fetch_movie_data(link)
     print('Scraped ', informational_number, ' of ', len(movies_links), ' movies - ',
           ('%.3f' % (informational_number/len(movies_links)*100)), '% ')
