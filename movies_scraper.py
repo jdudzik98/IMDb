@@ -34,22 +34,53 @@ for single_page in range(int(11897/250)):
     time.sleep(1)
 
 
-def fetch_box_office(href):
+def fetch_movie_data(href):
     page2 = requests.get('https://www.imdb.com' + str(href))
     soup2 = BeautifulSoup(page2.text, 'html.parser')
     movie_details = soup2.find(id="titleDetails")
-    info = {'box_office':'NA', 'budget':'NA'}
+    info = {'box_office': 'NA', 'budget': 'NA', 'in_english': 'NA', 'runtime': 'NA', 'is_genre_action': '0',
+            'is_genre_adventure': '0', 'is_genre_animation': '0', 'is_genre_biography': '0', 'is_genre_comedy': '0',
+            'is_genre_crime': '0', 'is_genre_documentary': '0', 'is_genre_drama': '0', 'is_genre_family': '0',
+            'is_genre_fantasy': '0', 'is_genre_film-noir': '0', 'is_genre_game-show': '0',  'is_genre_history': '0',
+            'is_genre_horror': '0', 'is_genre_music': '0', 'is_genre_musical': '0', 'is_genre_mystery': '0',
+            'is_genre_news': '0', 'is_genre_reality-tv': '0', 'is_genre_romance': '0', 'is_genre_sci-fi': '0',
+            'is_genre_sport': '0', 'is_genre_talk-show': '0', 'is_genre_thriller': '0', 'is_genre_war': '0',
+            'is_genre_western': '0'}
+    movie_storyline = soup2.find(id="titleStoryLine")
     try:
-        txt = movie_details.find_all(class_="txt-block")
-        for t in txt:
+        textblocks = movie_details.find_all(class_="txt-block")
+        for t in textblocks:
             try:
                 header = t.find(class_="inline").contents
                 if 'Cumulative Worldwide Gross' in str(header[0]):
                     info['box_office'] = str(t.contents[2])
                 elif 'Budget' in str(header[0]):
                     info['budget'] = str(t.contents[2])
+                elif 'Language' in str(header[0]):
+                    for lang in t.find_all('a'):
+                        if 'English' in str(lang.contents[0]):
+                            info['in_english'] = 1
+                    if info['in_english'] == 'NA':
+                        info['in_english'] = 0
+                elif 'Runtime' in str(header[0]):
+                    info['runtime'] = str(t.find('time').contents[0])
             except AttributeError:
                 pass
     except ValueError:
         pass
+    try:
+        textblocks = movie_storyline.find_all(class_="see-more inline canwrap")
+        try:
+            for genre in textblocks[1].find_all('a'):
+                if 'is_genre_{}'.format(genre.contents[0].lower()[1:]) in info.keys():
+                    info['is_genre_{}'.format(genre.contents[0].lower()[1:])] = 1
+                else:
+                    print('Error in movie ' + href + ' unknown genre')
+        except IndexError:
+            print('Error in movie ' + href + ' no genres')
+
+    except ValueError or IndexError:
+        print('value/index error')
+        pass
+
     return info
