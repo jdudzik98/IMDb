@@ -5,10 +5,11 @@ import csv
 
 movies_links = []
 movie_data = []
+
 for single_page in range(int(11897/250)):
     broken = False
     page = requests.get(
-        'https://www.imdb.com/search/title/?title_type=feature&release_date=2018-01-01,2018-12-31&sort=' +
+        'https://www.imdb.com/search/title/?title_type=feature&release_date=2015-01-01,2019-11-13&sort=' +
         'boxoffice_gross_us,asc&count=250&start=' + str(single_page*250 + 1) + '&ref_=adv_nxt')
 
     soup = BeautifulSoup(page.text, 'html.parser')
@@ -96,7 +97,8 @@ def fetch_movie_data(href):
         pass
 
     time.sleep(1)
-    movie_data.append(info)
+    if 'NA' not in info.values():
+        movie_data.append(info)
     return
 
 
